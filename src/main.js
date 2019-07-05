@@ -1,20 +1,17 @@
 import Vue from 'vue'
+import './plugins/vuetify'
 import App from './App.vue'
+import { router } from './router'
+import store from "./store"
+window.axios = require('axios');
+import VueAxios from 'vue-axios'
+Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
-
-// export const loadedGoogleMapsAPI = new Promise( (resolve,reject) => {
-
-//   window['GoogleMapsInit'] = resolve;
-
-//   let GMap = document.createElement('script');
-  
-//   GMap.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=AIzaSyAjEn4M4V78EDEku1FoJ1p7AdGHSjHzp3c&callback=GoogleMapsInit&libraries=places`);
-
-//   document.body.appendChild(GMap); 
-// });
-
-
-
 new Vue({
   render: h => h(App),
+  router,
+  store,
 }).$mount('#app')
+
+
+export const eventBus = new Vue();
