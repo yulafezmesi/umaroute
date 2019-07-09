@@ -42,6 +42,7 @@ export default {
       }
     };
   },
+  
   methods: {
     onSubmit() {
       var _this = this;

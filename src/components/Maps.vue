@@ -120,6 +120,31 @@
                   <v-flex md6>
                     <v-text-field py-2 ref="plaka" label="Plaka" v-model="formValues.plate"></v-text-field>
                   </v-flex>
+                  <v-menu
+                    v-model="dateMenu"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    lazy
+                    transition="scale-transition"
+                    offset-y
+                    full-width
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="formValues.invoiceDate"
+                        label="Fatura Tarihi"
+                        prepend-icon="event"
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      locale="tr"
+                      v-model="invoiceDate"
+                      @input="dateMenu = false"
+                    ></v-date-picker>
+                  </v-menu>
                 </v-layout>
                 <v-textarea py-2 v-model="formValues.description" rows="3" label="Açıklama"></v-textarea>
                 <p v-if="isDone">{{ deserved }}</p>
@@ -149,6 +174,8 @@ export default {
   name: "app",
   data() {
     return {
+      invoiceDate:'',
+      dateMenu: false,
       parameters: this.$store.getters.optionValues,
       endpointRules: [v => !!v || "Konum giriniz"],
       snackbar: false,
@@ -183,6 +210,7 @@ export default {
           .format("L"),
         waypts: [],
         mapUrl: "",
+        invoiceDate: "",
         totalDistance: 0,
         totalPrice: 0,
         vehicleType: "",
@@ -203,6 +231,11 @@ export default {
   },
   updated() {},
   watch: {
+    "invoiceDate"(val) {
+      this.formValues.invoiceDate = moment(val)
+        .lang("tr")
+        .format("L");
+    },
     "formValues.waypts"() {
       let arr = [];
       document.getElementById("submit").click();
@@ -211,9 +244,7 @@ export default {
         arr.push(waypoints[i].location);
       }
       let arrNew = arr.join("%7C");
-      this.formValues.mapUrl = `https://www.google.com/maps/dir/?api=1&origin=Nazilli, Aydın, Türkiye,&destination=${
-        this.formValues.endPoint.il
-      }&travelmode=driving&waypoints=${arrNew}`;
+      this.formValues.mapUrl = `https://www.google.com/maps/dir/?api=1&origin=Nazilli, Aydın, Türkiye,&destination=${this.formValues.endPoint.il}&travelmode=driving&waypoints=${arrNew}`;
     },
     search(val) {
       // Items have already been loaded
@@ -277,8 +308,8 @@ export default {
       });
     },
     pointCount() {
-      this.formValues.pointCount = this.formValues.waypts.length +1;
-      return this.formValues.waypts.length +1;
+      this.formValues.pointCount = this.formValues.waypts.length + 1;
+      return this.formValues.waypts.length + 1;
     }
   },
   components: {},
@@ -440,9 +471,7 @@ export default {
             _this.isSend = true;
             _this.computeTotalDistance(response);
             if (_this.formValues.waypts.length == 0) {
-              _this.formValues.mapUrl = `https://www.google.com/maps/dir/?api=1&origin=Nazilli, Aydın, Türkiye,&destination=${
-                _this.formValues.endPoint.il
-              }&travelmode=driving`;
+              _this.formValues.mapUrl = `https://www.google.com/maps/dir/?api=1&origin=Nazilli, Aydın, Türkiye,&destination=${_this.formValues.endPoint.il}&travelmode=driving`;
             }
           } else {
             _this.snackbars.color = "error";

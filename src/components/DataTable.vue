@@ -61,7 +61,9 @@
             <td>{{ props.item.plate }}</td>
             <td>{{ props.item.description }}</td>
             <td>{{ props.item.totalPrice }}</td>
-            <td>{{ props.item.date }}</td>
+            <td>{{ props.item.invoiceDate }}</td>
+            <!-- <td>{{ props.item.date }}</td> -->
+
             <td>
               <v-btn target="_blank" :href="props.item.mapUrl">
                 <v-icon left color="primary">streetview</v-icon>
@@ -77,7 +79,6 @@
           </template>
         </v-data-table>
       </v-flex>
-      
     </v-layout>
   </div>
 </template>
@@ -98,7 +99,8 @@ export default {
         { text: "Plaka", value: "plate" },
         { text: "Açıklama", value: "description" },
         { text: "Toplam Fiyat", value: "totalPrice" },
-        { text: "Tarih", value: "date" }
+        { text: "Fatura Tarihi", value: "invoiceDate" },
+      
       ]
     };
   },
