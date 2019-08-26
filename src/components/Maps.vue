@@ -53,8 +53,9 @@
                     </v-list>
                   </v-card>
                 </div>
-                <!-- <v-text-field py-2 v-model="formValues.endPoint" id="to"></v-text-field> -->
+                <v-text-field v-model="formValues.destinationPoint" py-2 id="to"></v-text-field>
                 <v-autocomplete
+                  v-if="formValues.destinationPoint"
                   :rules="endpointRules"
                   v-model="formValues.endPoint"
                   :items="items"
@@ -64,7 +65,7 @@
                   hide-selected
                   item-text="il"
                   item-value="il"
-                  label="Konum girin"
+                  label="Sabit fiyat için il seçiniz"
                   return-object
                 ></v-autocomplete>
                 <v-radio-group
@@ -139,11 +140,7 @@
                         v-on="on"
                       ></v-text-field>
                     </template>
-                    <v-date-picker
-                      locale="tr"
-                      v-model="invoiceDate"
-                      @input="dateMenu = false"
-                    ></v-date-picker>
+                    <v-date-picker locale="tr" v-model="invoiceDate" @input="dateMenu = false"></v-date-picker>
                   </v-menu>
                 </v-layout>
                 <v-textarea py-2 v-model="formValues.description" rows="3" label="Açıklama"></v-textarea>
@@ -174,7 +171,7 @@ export default {
   name: "app",
   data() {
     return {
-      invoiceDate:'',
+      invoiceDate: "",
       dateMenu: false,
       parameters: this.$store.getters.optionValues,
       endpointRules: [v => !!v || "Konum giriniz"],
@@ -216,6 +213,7 @@ export default {
         vehicleType: "",
         plate: "",
         vehicleValue: 0,
+        destinationPoint: "",
         endPoint: {
           il: "",
           km: "",
@@ -231,7 +229,7 @@ export default {
   },
   updated() {},
   watch: {
-    "invoiceDate"(val) {
+    invoiceDate(val) {
       this.formValues.invoiceDate = moment(val)
         .lang("tr")
         .format("L");
@@ -244,7 +242,7 @@ export default {
         arr.push(waypoints[i].location);
       }
       let arrNew = arr.join("%7C");
-      this.formValues.mapUrl = `https://www.google.com/maps/dir/?api=1&origin=Nazilli, Aydın, Türkiye,&destination=${this.formValues.endPoint.il}&travelmode=driving&waypoints=${arrNew}`;
+      this.formValues.mapUrl = `https://www.google.com/maps/dir/?api=1&origin=Nazilli, Aydın, Türkiye,&destination=${this.formValues.destinationPoint}&travelmode=driving&waypoints=${arrNew}`;
     },
     search(val) {
       // Items have already been loaded
@@ -442,7 +440,7 @@ export default {
       _this.directionsService.route(
         {
           origin: this.formValues.beginPoint,
-          destination: this.formValues.endPoint.il,
+          destination: this.formValues.destinationPoint,
           waypoints: this.formValues.waypts,
           optimizeWaypoints: false,
           provideRouteAlternatives: true,
@@ -471,7 +469,7 @@ export default {
             _this.isSend = true;
             _this.computeTotalDistance(response);
             if (_this.formValues.waypts.length == 0) {
-              _this.formValues.mapUrl = `https://www.google.com/maps/dir/?api=1&origin=Nazilli, Aydın, Türkiye,&destination=${_this.formValues.endPoint.il}&travelmode=driving`;
+              _this.formValues.mapUrl = `https://www.google.com/maps/dir/?api=1&origin=Nazilli, Aydın, Türkiye,&destination=${_this.formValues.destinationPoint}&travelmode=driving`;
             }
           } else {
             _this.snackbars.color = "error";
@@ -495,12 +493,15 @@ export default {
           this.polylines[j].setOptions({ strokeColor: color });
         }
       }
-    }
+    },
+    
   },
   activated() {
     this.$store.dispatch("getParameters").then(() => {
+      this.$store.dispatch("disabledElements");
       this.parameters = this.$store.getters.parameterValues;
     });
+  
   },
   mounted() {
     Array.prototype.move = function(from1, to1) {
@@ -510,15 +511,23 @@ export default {
     this.initMaps();
     setTimeout(() => {
       var _this = this;
-      var input2 = document.getElementById("waypoint1");
+      var input1 = document.getElementById("waypoint1");
+      var input2 = document.getElementById("to");
+      _this.autocomplete1 = new this.googleMaps.places.Autocomplete(
+        input1,
+        _this.options
+      );
       _this.autocomplete2 = new this.googleMaps.places.Autocomplete(
         input2,
         _this.options
       );
       _this.autocomplete2.addListener("place_changed", () => {
-        let place2 = _this.autocomplete2.getPlace();
+        _this.formValues.destinationPoint = _this.autocomplete2.getPlace().formatted_address;
+      });
+      _this.autocomplete1.addListener("place_changed", () => {
+        let place1 = _this.autocomplete1.getPlace();
         this.formValues.waypts.push({
-          location: place2.formatted_address,
+          location: place1.formatted_address,
           stopover: true
         });
         this.formValues.location = "";
@@ -538,6 +547,7 @@ a {
 #map {
   float: left;
   min-width: 60% !important;
+  margin-left: 1em !important;
 }
 .right-panel {
   width: 80% !important;

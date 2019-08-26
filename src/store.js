@@ -8,11 +8,12 @@ const store = new Vuex.Store({
     state: {
         parameters: {},
         user: {
-            displayName : '',
-            imageUrl:'',
-            userGroup:'',
+            displayName: '',
+            imageUrl: '',
+            userGroup: '',
 
         },
+        isGuest: false,
         token: "",
         loadedDistances: [],
         loadedFormValues: [],
@@ -37,6 +38,7 @@ const store = new Vuex.Store({
             debugger;
             state.user = paylaod;
         },
+
         updateDistances(state, payload) {
             const formValues = state.loadedDistances.find(value => {
                 return value.id === payload.id
@@ -151,6 +153,25 @@ const store = new Vuex.Store({
                     // always executed
                 });
         },
+        disabledElements({ commit, state }) {
+            debugger;
+            if (state.user.userGroup == "Guest") {
+                debugger;
+                var inputs = document.getElementsByTagName("input");
+                for (var i = 0; i < inputs.length; i++) {
+                    inputs[i].disabled = true;
+                }
+                var selects = document.getElementsByTagName("select");
+                for (var i = 0; i < selects.length; i++) {
+                    selects[i].disabled = true;
+                }
+                var textareas = document.getElementsByTagName("textarea");
+                for (var i = 0; i < textareas.length; i++) {
+                    textareas[i].disabled = true;
+                }
+
+            }
+        },
         updateDistancesData({ commit }, payload) {
             const updateObj = {};
             if (payload.il) {
@@ -247,6 +268,14 @@ const store = new Vuex.Store({
         },
         parameterValues(state) {
             return state.parameters;
+        },
+        isGuest(state) {
+            if (state.user.userGroup == "Guest") {
+                return false
+            } else {
+                return true
+            }
+
         }
     },
 })

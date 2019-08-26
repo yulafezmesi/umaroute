@@ -5,7 +5,7 @@
         <v-toolbar color="white">
           <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="200" offset-x>
             <template v-slot:activator="{ on }">
-              <v-icon v-if="checkGroup" color="indigo" dark v-on="on">settings</v-icon>
+              <v-icon v-if="checkGuest" color="indigo" dark v-on="on">settings</v-icon>
             </template>
             <v-card>
               <v-list>
@@ -103,7 +103,7 @@
             <td>{{ props.item.il }}</td>
             <td>{{ props.item.km }}</td>
             <td>{{ props.item.fiyat }}</td>
-            <td class="justify-center layout px-0">
+            <td v-if="checkGuest" class="justify-center layout px-0">
               <v-icon small class="mr-2" @click="updateDistance(props.item)">edit</v-icon>
               <v-icon small @click="deleteItem(props.item.id)">delete</v-icon>
             </td>
@@ -156,6 +156,9 @@ export default {
   }),
 
   computed: {
+    checkGuest() {
+      return this.$store.getters.isGuest;
+    },
     checkGroup() {
       if (this.$store.getters.userValues.userGroup == "Admin") {
         return true;
