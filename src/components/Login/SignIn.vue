@@ -33,6 +33,10 @@
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
+          <v-snackbar v-model="snackbar" color="red">
+            Kullanıcı adı veya şifre yanlış, hangisi olduğunu söylemeyemem
+            <v-icon @click="snackbar = false" flat color="white">close</v-icon>
+          </v-snackbar>
         </v-flex>
       </v-layout>
     </v-container>
@@ -42,8 +46,9 @@
 export default {
   data() {
     return {
+      snackbar: false,
       emailRules: [
-        v =>  !!v || "E-mail adresi giriniz",
+        v => !!v || "E-mail adresi giriniz",
         v => /.+@.+/.test(v) || "Geçerli E-mail adresi giriniz"
       ],
       passwordRules: [
@@ -59,9 +64,14 @@ export default {
   methods: {
     onSubmit() {
       if (this.$refs.signinForm.validate()) {
-        this.$store.dispatch("login", { ...this.user }).then(response => {
-          this.$router.push("/");
-        });
+        this.$store
+          .dispatch("login", { ...this.user })
+          .then(response => {
+            this.$router.push("/");
+          })
+          .catch(err => {
+            this.snackbar = true;
+          });
       }
     }
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="main-container d-flex justify-content-around">
     <div id="map"></div>
-
+  
     <v-container fluid ma-0 pa-0 fill-height>
       <v-layout mr-5 ml-5 justify-start column>
         <v-flex d-flex>
@@ -395,7 +395,6 @@ export default {
     },
     postForm() {
       var _this = this;
-
       if (_this.$refs.mapsForm.validate()) {
         this.axios
           .post("https://routes-75247.firebaseio.com/umaroute.json", {
@@ -494,7 +493,6 @@ export default {
         }
       }
     },
-    
   },
   activated() {
     this.$store.dispatch("getParameters").then(() => {

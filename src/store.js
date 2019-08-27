@@ -86,15 +86,12 @@ const store = new Vuex.Store({
                 }
             )
                 .then(response => {
-                    debugger;
                     dispatch("getUserProfiles", response.data.localId)
                     commit("setToken", response.data.idToken);
                     localStorage.setItem("token", response.data.idToken)
                     localStorage.setItem("expirationDate", new Date().getTime() + +response.data.expiresIn * 1000)
                     dispatch("setTimeLogOut", +response.data.expiresIn * 1000);
                 })
-                .catch(err => {
-                });
 
         },
         logout({ commit, dispatch, state }) {
