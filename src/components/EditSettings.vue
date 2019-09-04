@@ -42,7 +42,6 @@ export default {
     });
     eventBus.$on("editedItem", editedItem => {
       this.editedItem = editedItem;
-      console.log(this.editedItem);
     });
   },
   mounted() {},

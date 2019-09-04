@@ -35,7 +35,6 @@ const store = new Vuex.Store({
             state.parameters = payload;
         },
         setUserValues(state, paylaod) {
-            debugger;
             state.user = paylaod;
         },
 
@@ -151,9 +150,7 @@ const store = new Vuex.Store({
                 });
         },
         disabledElements({ commit, state }) {
-            debugger;
             if (state.user.userGroup == "Guest") {
-                debugger;
                 var inputs = document.getElementsByTagName("input");
                 for (var i = 0; i < inputs.length; i++) {
                     inputs[i].disabled = true;
@@ -232,11 +229,9 @@ const store = new Vuex.Store({
                 .get(`https://routes-75247.firebaseio.com/users/${payload}.json`)
                 .then(function (response) {
                     let users = {};
-                    debugger;
                     users = response.data;
                     var userObj = users[Object.keys(users)[0]];
                     localStorage.setItem("user", JSON.stringify(userObj));
-                    debugger;
                     commit('setUserValues', userObj)
                 })
                 .catch(function (error) {
@@ -260,7 +255,6 @@ const store = new Vuex.Store({
             return state.loadedFormValues.reverse();
         },
         userValues(state) {
-            debugger;
             return state.user;
         },
         parameterValues(state) {

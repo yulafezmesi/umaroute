@@ -5,7 +5,7 @@
         <v-toolbar color="white">
           <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="200" offset-x>
             <template v-slot:activator="{ on }">
-              <v-icon v-if="checkGuest" color="indigo" dark v-on="on">settings</v-icon>
+              <v-icon v-if="checkGroup" color="indigo" dark v-on="on">settings</v-icon>
             </template>
             <v-card>
               <v-list>
@@ -174,7 +174,6 @@ export default {
       val || this.close();
     }
   },
-
   activated() {
     this.$store.dispatch("loadDistances").then(() => {
       this.distanceValues = this.$store.getters.distances;
@@ -219,13 +218,11 @@ export default {
     editItem(item) {
       this.editedItem = Object.assign({}, item);
     },
-
     deleteItem(item) {
       const index = this.distanceValues.indexOf(item);
       confirm("Are you sure you want to delete this item?") &&
         this.distanceValues.splice(index, 1);
     },
-
     close() {
       this.dialog = false;
       setTimeout(() => {
@@ -233,7 +230,6 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-
     save() {
       if (this.editedIndex > -1) {
         Object.assign(this.distanceValues[this.editedIndex], this.editedItem);

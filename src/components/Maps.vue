@@ -1,7 +1,7 @@
 <template>
   <div class="main-container d-flex justify-content-around">
     <div id="map"></div>
-  
+
     <v-container fluid ma-0 pa-0 fill-height>
       <v-layout mr-5 ml-5 justify-start column>
         <v-flex d-flex>
@@ -270,7 +270,6 @@ export default {
   computed: {
     deserved() {
       if (!this.formValues.endPoint.il) return 0;
-      debugger;
       var t = +this.formValues.totalDistance;
       var r = +this.formValues.endPoint.km;
       var ex = +this.formValues.extraCharge;
@@ -312,6 +311,9 @@ export default {
   },
   components: {},
   methods: {
+    updatePassword() {
+     
+    },
     initMaps() {
       var _this = this;
       const loadGoogleMapsApi = require("load-google-maps-api-2");
@@ -385,7 +387,6 @@ export default {
       return e.split(",", 2)[0] + "," + e.split(",", 2)[1];
     },
     setVehicleValue(type) {
-      debugger;
       var lorryValue = this.parameters.lorryValue;
       var truckValue = this.parameters.truckValue;
       console.log(this.parameters.lorryValue);
@@ -492,14 +493,13 @@ export default {
           this.polylines[j].setOptions({ strokeColor: color });
         }
       }
-    },
+    }
   },
   activated() {
     this.$store.dispatch("getParameters").then(() => {
       this.$store.dispatch("disabledElements");
       this.parameters = this.$store.getters.parameterValues;
     });
-  
   },
   mounted() {
     Array.prototype.move = function(from1, to1) {
