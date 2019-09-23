@@ -134,10 +134,13 @@ const store = new Vuex.Store({
             return axios
                 .get("https://routes-75247.firebaseio.com/umaroute.json")
                 .then(function (response) {
+
                     let formValues = [];
                     let data = response.data;
                     for (let key in data) {
+                        data[key].id = key;
                         formValues.push(data[key]);
+
                     }
                     commit('setLoadedFormValues', formValues)
                 })
@@ -212,6 +215,23 @@ const store = new Vuex.Store({
         updateParameters({ commit }, updateObj) {
             return axios
                 .put(`https://routes-75247.firebaseio.com/options.json`, updateObj)
+                .then(function (response) {
+
+                    console.log('update oldu')
+                })
+                .catch(function (error) {
+                    // eslint-disable-line
+                    // handle error
+                })
+                .finally(function () {
+                    // always executed
+                });
+        },
+        updateFormValues({ commit }, updateObj) {
+            let id = updateObj.id;
+            delete updateObj.id;
+            return axios
+                .patch(`https://routes-75247.firebaseio.com/umaroute/${id}.json`, updateObj)
                 .then(function (response) {
 
                     console.log('update oldu')

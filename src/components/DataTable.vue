@@ -15,6 +15,7 @@
               hide-details
             ></v-text-field>
           </v-flex>
+          <app-edit-form-values></app-edit-form-values>
         </v-toolbar>
       </v-flex>
     </v-layout>
@@ -62,10 +63,13 @@
             <td>{{ props.item.description }}</td>
             <td>{{ props.item.totalPrice }}</td>
             <td>{{ props.item.invoiceDate }}</td>
+            <td v-if="checkGuest" class="justify-center layout px-0">
+              <v-icon class="mr-2" @click="updateFormValues(props.item)">edit</v-icon>
+            </td>
             <!-- <td>{{ props.item.date }}</td> -->
 
             <td>
-              <v-btn target="_blank" :href="props.item.mapUrl">
+              <v-btn small target="_blank" :href="props.item.mapUrl">
                 <v-icon left color="primary">streetview</v-icon>
               </v-btn>
             </td>
@@ -80,12 +84,23 @@
         </v-data-table>
       </v-flex>
     </v-layout>
+    <v-snackbar v-model="snackbar" :color="snackbars.color">
+      {{ snackbars.text }}
+      <v-icon @click="snackbar = false" flat color="white">close</v-icon>
+    </v-snackbar>
   </div>
 </template>
 <script>
+import { eventBus } from "../main";
+import EditFormValues from "@/components/EditFormValues";
 export default {
   data() {
     return {
+      snackbar: false,
+      snackbars: {
+        text: "",
+        color: ""
+      },
       formValues: [],
       search: "",
       headers: [
@@ -99,17 +114,38 @@ export default {
         { text: "Plaka", value: "plate" },
         { text: "Açıklama", value: "description" },
         { text: "Toplam Fiyat", value: "totalPrice" },
-        { text: "Fatura Tarihi", value: "invoiceDate" },
-      
+        { text: "Fatura Tarihi", value: "invoiceDate" }
       ]
     };
   },
+  watch: {},
   activated() {
     this.$store.dispatch("loadMapValues").then(() => {
       this.formValues = this.$store.getters.formValues;
     });
-  },
 
-  methods: {}
+    eventBus.$on("snackBar", snackBar => {
+      this.snackbars.text = snackBar.text;
+      this.snackbars.color = snackBar.color;
+      this.snackbar = snackBar.show;
+    });
+  },
+  computed: {
+    checkGuest() {
+      return this.$store.getters.isGuest;
+    }
+  },
+  methods: {
+    updateFormValues(obj) {
+      eventBus.$emit("showFormModal", true);
+      eventBus.$emit("editedFormItem", obj);
+    },
+    deleteItem(id) {
+      alert("deleted");
+    }
+  },
+  components: {
+    appEditFormValues: EditFormValues
+  }
 };
 </script>
