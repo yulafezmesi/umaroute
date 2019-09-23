@@ -46,7 +46,7 @@ export default {
       snackbars: {
         show: false,
         text: "",
-        color: ""
+        color: ''
       },
       editDialog: false,
       editedItem: {}

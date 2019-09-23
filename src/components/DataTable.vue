@@ -139,6 +139,7 @@ export default {
     updateFormValues(obj) {
       eventBus.$emit("showFormModal", true);
       eventBus.$emit("editedFormItem", obj);
+      
     },
     deleteItem(id) {
       alert("deleted");
