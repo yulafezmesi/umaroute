@@ -3,6 +3,7 @@ node_modules
 /dist
 /src/database.js
 # local env files
+.env
 .env.local
 .env.*.local
 
