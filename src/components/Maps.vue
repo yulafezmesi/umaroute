@@ -282,7 +282,7 @@ export default {
       } else {
         y = t - r;
       }
-      var totalHesap = y * 3.1 + ex + ((p - 1) * v + f);
+      var totalHesap = y * this.parameters.lorryValue + ex + ((p - 1) * v + f);
       this.formValues.totalPrice = totalHesap.toFixed(2);
       return totalHesap.toFixed(2);
     },

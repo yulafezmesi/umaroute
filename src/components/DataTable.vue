@@ -102,7 +102,7 @@ export default {
         color: ""
       },
       formValues: [],
-      search: "",
+      search: '',
       headers: [
         { text: "Varış Noktası", value: "endPoint.il" },
         { text: "Noktalar", value: "waypts[0].location" },

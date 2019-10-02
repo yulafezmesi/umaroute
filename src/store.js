@@ -77,13 +77,11 @@ const store = new Vuex.Store({
             }
         },
         login({ commit, dispatch, state }, authData) {
-            return axios.post("https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyCrQVg-ZAdCxSgaAvRfsXZUlt8wHz1nSrs",
-                {
+            return axios.post("https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyCrQVg-ZAdCxSgaAvRfsXZUlt8wHz1nSrs", {
                     email: authData.email,
                     password: authData.password,
                     returnSecureToken: true
-                }
-            )
+                })
                 .then(response => {
                     dispatch("getUserProfiles", response.data.localId)
                     commit("setToken", response.data.idToken);
@@ -105,9 +103,9 @@ const store = new Vuex.Store({
             }, expiresIn);
         },
         loadDistances({ commit }) {
-            return axios
-                .get("https://routes-75247.firebaseio.com/distance.json")
-                .then(function (response) {
+            return this.$http
+                .get("/distance.json")
+                .then(function(response) {
                     let distanceValues = [];
                     let data = response.data;
                     for (let key in data) {
@@ -122,18 +120,18 @@ const store = new Vuex.Store({
 
                     commit('setLoadedDistances', distanceValues)
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     // eslint-disable-line
                     // handle error
                 })
-                .finally(function () {
+                .finally(function() {
                     // always executed
                 });
         },
         loadMapValues({ commit }) {
             return axios
                 .get("https://routes-75247.firebaseio.com/umaroute.json")
-                .then(function (response) {
+                .then(function(response) {
 
                     let formValues = [];
                     let data = response.data;
@@ -144,11 +142,11 @@ const store = new Vuex.Store({
                     }
                     commit('setLoadedFormValues', formValues)
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     // eslint-disable-line
                     // handle error
                 })
-                .finally(function () {
+                .finally(function() {
                     // always executed
                 });
         },
@@ -185,45 +183,45 @@ const store = new Vuex.Store({
             }
             return axios
                 .put(`https://routes-75247.firebaseio.com/distance/${payload.id}.json`, updateObj)
-                .then(function (response) {
+                .then(function(response) {
                     commit('updateDistances', payload)
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     // eslint-disable-line
                     // handle error
                 })
-                .finally(function () {
+                .finally(function() {
                     // always executed
                 });
         },
         getParameters({ commit }) {
             return axios
                 .get("https://routes-75247.firebaseio.com/options.json")
-                .then(function (response) {
+                .then(function(response) {
                     let parameters = {};
                     parameters = response.data;
                     commit('setParameterValues', parameters)
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     // eslint-disable-line
                     // handle error
                 })
-                .finally(function () {
+                .finally(function() {
                     // always executed
                 });
         },
         updateParameters({ commit }, updateObj) {
             return axios
                 .put(`https://routes-75247.firebaseio.com/options.json`, updateObj)
-                .then(function (response) {
+                .then(function(response) {
 
                     console.log('update oldu')
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     // eslint-disable-line
                     // handle error
                 })
-                .finally(function () {
+                .finally(function() {
                     // always executed
                 });
         },
@@ -232,33 +230,33 @@ const store = new Vuex.Store({
             delete updateObj.id;
             return axios
                 .patch(`https://routes-75247.firebaseio.com/umaroute/${id}.json`, updateObj)
-                .then(function (response) {
+                .then(function(response) {
 
                     console.log('update oldu')
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     // eslint-disable-line
                     // handle error
                 })
-                .finally(function () {
+                .finally(function() {
                     // always executed
                 });
         },
         getUserProfiles({ commit }, payload) {
             return axios
                 .get(`https://routes-75247.firebaseio.com/users/${payload}.json`)
-                .then(function (response) {
+                .then(function(response) {
                     let users = {};
                     users = response.data;
                     var userObj = users[Object.keys(users)[0]];
                     localStorage.setItem("user", JSON.stringify(userObj));
                     commit('setUserValues', userObj)
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     // eslint-disable-line
                     // handle error
                 })
-                .finally(function () {
+                .finally(function() {
                     // always executed
                 });
         }
