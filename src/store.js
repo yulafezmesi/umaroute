@@ -1,7 +1,6 @@
 import Vue from "vue"
 import Vuex from "vuex"
 import { router } from "./router"
-import axios from 'axios'
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -77,7 +76,7 @@ const store = new Vuex.Store({
             }
         },
         login({ commit, dispatch, state }, authData) {
-            return axios.post("https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyCrQVg-ZAdCxSgaAvRfsXZUlt8wHz1nSrs", {
+            return axios.post(`https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${process.env.VUE_APP_FIREBASE_API_KEY}`, {
                     email: authData.email,
                     password: authData.password,
                     returnSecureToken: true
@@ -102,8 +101,16 @@ const store = new Vuex.Store({
                 dispatch("logout")
             }, expiresIn);
         },
+        postFormValues({ commit, dispatch, state }, formValues) {
+            return axios.post(`/umaroute.json`, {
+                ...formValues
+            }).then(response => {
+                return response
+            })
+
+        },
         loadDistances({ commit }) {
-            return this.$http
+            return axios
                 .get("/distance.json")
                 .then(function(response) {
                     let distanceValues = [];
@@ -120,17 +127,10 @@ const store = new Vuex.Store({
 
                     commit('setLoadedDistances', distanceValues)
                 })
-                .catch(function(error) {
-                    // eslint-disable-line
-                    // handle error
-                })
-                .finally(function() {
-                    // always executed
-                });
         },
         loadMapValues({ commit }) {
             return axios
-                .get("https://routes-75247.firebaseio.com/umaroute.json")
+                .get("/umaroute.json")
                 .then(function(response) {
 
                     let formValues = [];
@@ -138,17 +138,9 @@ const store = new Vuex.Store({
                     for (let key in data) {
                         data[key].id = key;
                         formValues.push(data[key]);
-
                     }
                     commit('setLoadedFormValues', formValues)
                 })
-                .catch(function(error) {
-                    // eslint-disable-line
-                    // handle error
-                })
-                .finally(function() {
-                    // always executed
-                });
         },
         disabledElements({ commit, state }) {
             if (state.user.userGroup == "Guest") {
@@ -182,69 +174,37 @@ const store = new Vuex.Store({
                 updateObj.id = payload.plaka
             }
             return axios
-                .put(`https://routes-75247.firebaseio.com/distance/${payload.id}.json`, updateObj)
+                .put(`/distance/${payload.id}.json`, updateObj)
                 .then(function(response) {
                     commit('updateDistances', payload)
                 })
-                .catch(function(error) {
-                    // eslint-disable-line
-                    // handle error
-                })
-                .finally(function() {
-                    // always executed
-                });
         },
         getParameters({ commit }) {
             return axios
-                .get("https://routes-75247.firebaseio.com/options.json")
+                .get("/options.json")
                 .then(function(response) {
                     let parameters = {};
                     parameters = response.data;
                     commit('setParameterValues', parameters)
                 })
-                .catch(function(error) {
-                    // eslint-disable-line
-                    // handle error
-                })
-                .finally(function() {
-                    // always executed
-                });
         },
         updateParameters({ commit }, updateObj) {
             return axios
-                .put(`https://routes-75247.firebaseio.com/options.json`, updateObj)
-                .then(function(response) {
-
-                    console.log('update oldu')
-                })
-                .catch(function(error) {
-                    // eslint-disable-line
-                    // handle error
-                })
-                .finally(function() {
-                    // always executed
-                });
+                .put(`/options.json`, updateObj)
         },
         updateFormValues({ commit }, updateObj) {
             let id = updateObj.id;
             delete updateObj.id;
             return axios
-                .patch(`https://routes-75247.firebaseio.com/umaroute/${id}.json`, updateObj)
+                .patch(`/umaroute/${id}.json`, updateObj)
                 .then(function(response) {
 
                     console.log('update oldu')
                 })
-                .catch(function(error) {
-                    // eslint-disable-line
-                    // handle error
-                })
-                .finally(function() {
-                    // always executed
-                });
         },
         getUserProfiles({ commit }, payload) {
             return axios
-                .get(`https://routes-75247.firebaseio.com/users/${payload}.json`)
+                .get(`/users/${payload}.json`)
                 .then(function(response) {
                     let users = {};
                     users = response.data;
@@ -252,13 +212,6 @@ const store = new Vuex.Store({
                     localStorage.setItem("user", JSON.stringify(userObj));
                     commit('setUserValues', userObj)
                 })
-                .catch(function(error) {
-                    // eslint-disable-line
-                    // handle error
-                })
-                .finally(function() {
-                    // always executed
-                });
         }
     },
     getters: {

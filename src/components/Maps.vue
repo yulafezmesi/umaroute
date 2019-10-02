@@ -167,6 +167,7 @@
 // <script>
 // import { debuglog } from "util";
 var moment = require("moment");
+import loadGoogleMapsApi from "@/googlemaps.js";
 export default {
   name: "app",
   data() {
@@ -282,7 +283,7 @@ export default {
       } else {
         y = t - r;
       }
-      var totalHesap = y * this.parameters.lorryValue+ ex + ((p - 1) * v + f);
+      var totalHesap = y * this.parameters.lorryValue + ex + ((p - 1) * v + f);
       this.formValues.totalPrice = totalHesap.toFixed(2);
       return totalHesap.toFixed(2);
     },
@@ -314,10 +315,7 @@ export default {
     updatePassword() {},
     initMaps() {
       var _this = this;
-      const loadGoogleMapsApi = require("load-google-maps-api-2");
-      loadGoogleMapsApi.key = "AIzaSyAjEn4M4V78EDEku1FoJ1p7AdGHSjHzp3c";
-      loadGoogleMapsApi.language = "tr";
-      loadGoogleMapsApi.libraries = ["places"];
+
       loadGoogleMapsApi().then(function(googleMaps) {
         _this.googleMaps = googleMaps;
         _this.vueMaps = new googleMaps.Map(document.getElementById("map"), {
@@ -394,16 +392,13 @@ export default {
     },
     postForm() {
       var _this = this;
-      if (_this.$refs.mapsForm.validate()) {
-        this.axios
-          .post("https://routes-75247.firebaseio.com/umaroute.json", {
-            ..._this.formValues
-          })
-          .then(function(response) {
+      if (this.$refs.mapsForm.validate()) {
+        this.$store
+          .dispatch("postFormValues", this.formValues)
+          .then(response => {
             _this.snackbars.text = "Form başarıyla gönderildi";
             _this.snackbars.color = "success";
             _this.snackbar = true;
-            console.log(response); // eslint-disable-line
           })
           .catch(function(error) {
             // eslint-disable-line
@@ -500,6 +495,7 @@ export default {
     });
   },
   mounted() {
+
     Array.prototype.move = function(from1, to1) {
       this.splice(to1, 0, this.splice(from1, 1)[0]);
       return this;
