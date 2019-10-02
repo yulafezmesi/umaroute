@@ -282,7 +282,7 @@ export default {
       } else {
         y = t - r;
       }
-      var totalHesap = y * this.parameters.lorryValue + ex + ((p - 1) * v + f);
+      var totalHesap = y * this.parameters.lorryValue+ ex + ((p - 1) * v + f);
       this.formValues.totalPrice = totalHesap.toFixed(2);
       return totalHesap.toFixed(2);
     },
@@ -311,9 +311,7 @@ export default {
   },
   components: {},
   methods: {
-    updatePassword() {
-     
-    },
+    updatePassword() {},
     initMaps() {
       var _this = this;
       const loadGoogleMapsApi = require("load-google-maps-api-2");
