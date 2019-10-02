@@ -1,3 +1,4 @@
+import 'babel-polyfill'
 import Vue from 'vue'
 import './plugins/vuetify'
 import App from './App.vue'
@@ -5,7 +6,6 @@ import { router } from './router'
 import store from "./store"
 import VueAxios from 'vue-axios'
 import axiosApi from 'axios';
-
 const axiosMap = axiosApi.create({
     baseURL: process.env.VUE_APP_FIREBASE_DATABASE_URL,
 });
