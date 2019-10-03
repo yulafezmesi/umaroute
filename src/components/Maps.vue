@@ -1,7 +1,6 @@
 <template>
   <div class="main-container d-flex justify-content-around">
     <div id="map"></div>
-
     <v-container fluid ma-0 pa-0 fill-height>
       <v-layout mr-5 ml-5 justify-start column>
         <v-flex d-flex>
@@ -9,7 +8,7 @@
             <v-form ref="mapsForm">
               <div class="form-group">
                 <v-text-field py-2 readonly v-model="formValues.beginPoint" id="from"></v-text-field>
-                <div v-show="isDone">
+                <div v-show="wayptShow">
                   <v-alert
                     v-show="formValues.waypts.length==0"
                     :value="true"
@@ -17,6 +16,7 @@
                     transition="scale-transition"
                   >Konum eklenmedi.</v-alert>
                   <v-text-field
+                    autofocus
                     py-2
                     ref="location"
                     class="form-control mb-3"
@@ -24,8 +24,8 @@
                     id="waypoint1"
                     type="text"
                   ></v-text-field>
-                  <v-card>
-                    <v-list v-show="formValues.waypts">
+                  <v-card class="mb-5" v-show="formValues.waypts.length > 0">
+                    <v-list class="mb-1">
                       <transition-group name="scale-transition">
                         <template v-for="(way, i) in formValues.waypts">
                           <v-list-tile :key="i">
@@ -53,21 +53,14 @@
                     </v-list>
                   </v-card>
                 </div>
-                <v-text-field v-model="formValues.destinationPoint" py-2 id="to"></v-text-field>
-                <v-autocomplete
-                  v-if="formValues.destinationPoint"
-                  :rules="endpointRules"
-                  v-model="formValues.endPoint"
-                  :items="items"
-                  :loading="isLoading"
-                  :search-input.sync="search"
-                  hide-no-data
-                  hide-selected
-                  item-text="il"
-                  item-value="il"
-                  label="Sabit fiyat için il seçiniz"
-                  return-object
-                ></v-autocomplete>
+                <v-text-field
+                  autofocus
+                  placeholder=" "
+                  label="Varış Noktası"
+                  v-model="formValues.destinationPoint"
+                  py-2
+                  id="to"
+                ></v-text-field>
                 <v-radio-group
                   label="Araç Tipi"
                   color="info"
@@ -75,8 +68,8 @@
                   v-model="formValues.vehicleType"
                   row
                 >
-                  <v-radio label="TIR" value="TIR"></v-radio>
-                  <v-radio label="KAMYON" value="KAMYON"></v-radio>
+                  <v-radio key="TIR" label="TIR" value="TIR"></v-radio>
+                  <v-radio key="KAMYON" label="KAMYON" value="KAMYON"></v-radio>
                 </v-radio-group>
                 <v-layout wrap row>
                   <v-flex md6>
@@ -101,10 +94,11 @@
                   <v-flex md6>
                     <v-text-field
                       py-2
-                      readonly
                       label="Sabit Ücret"
                       v-model="formValues.endPoint.fiyat"
                       type="number"
+                      readonly
+                      required
                     ></v-text-field>
                   </v-flex>
                   <v-flex md12>
@@ -164,14 +158,15 @@
     </v-container>
   </div>
 </template>
-// <script>
-// import { debuglog } from "util";
+<script>
 var moment = require("moment");
 import loadGoogleMapsApi from "@/googlemaps.js";
 export default {
   name: "app",
+  directives: { focus },
   data() {
     return {
+      wayptShow: false,
       invoiceDate: "",
       dateMenu: false,
       parameters: this.$store.getters.optionValues,
@@ -211,14 +206,15 @@ export default {
         invoiceDate: "",
         totalDistance: 0,
         totalPrice: 0,
-        vehicleType: "",
+        vehicleType: "TIR",
         plate: "",
-        vehicleValue: 0,
+        vehicleValue: 100,
         destinationPoint: "",
         endPoint: {
+          fiyat: "",
+          id: "",
           il: "",
-          km: "",
-          fiyat: ""
+          km: ""
         },
         pointCount: 0,
         beginPoint: "Nazilli, Aydın, Türkiye",
@@ -228,7 +224,6 @@ export default {
       }
     };
   },
-  updated() {},
   watch: {
     invoiceDate(val) {
       this.formValues.invoiceDate = moment(val)
@@ -244,28 +239,6 @@ export default {
       }
       let arrNew = arr.join("%7C");
       this.formValues.mapUrl = `https://www.google.com/maps/dir/?api=1&origin=Nazilli, Aydın, Türkiye,&destination=${this.formValues.destinationPoint}&travelmode=driving&waypoints=${arrNew}`;
-    },
-    search(val) {
-      // Items have already been loaded
-      if (this.items.length > 0) return;
-
-      // Items have already been requested
-      if (this.isLoading) return;
-
-      this.isLoading = true;
-
-      // Lazily load input items
-      fetch("https://routes-75247.firebaseio.com/distance.json")
-        .then(res => res.json())
-        .then(res => {
-          const { count, entries } = res;
-          this.count = count;
-          this.entries = res;
-        })
-        .catch(err => {
-          console.log(err);
-        })
-        .finally(() => (this.isLoading = false));
     }
   },
   computed: {
@@ -274,49 +247,36 @@ export default {
       var t = +this.formValues.totalDistance;
       var r = +this.formValues.endPoint.km;
       var ex = +this.formValues.extraCharge;
-      var p = +this.pointCount === 0 ? 1 : +this.pointCount;
+      var p = +this.pointCount === 1 ? 2 : +this.pointCount;
       var v = +this.formValues.vehicleValue;
+      debugger;
       var f = +this.formValues.endPoint.fiyat;
+      var l = +this.parameters.lorryValue;
+      var fn = +this.parameters.floorNumber;
       var y;
+      if (this.pointCount == 1) v = 0;
       if (t < r) {
         y = 0;
+        l = 0;
       } else {
         y = t - r;
       }
-      var totalHesap = y * this.parameters.lorryValue + ex + ((p - 1) * v + f);
+
+      var totalHesap = y * fn + ex + ((p - 1) * v + f);
       this.formValues.totalPrice = totalHesap.toFixed(2);
       return totalHesap.toFixed(2);
-    },
-    fields() {
-      if (!this.model) return [];
-      return Object.keys(this.model).map(key => {
-        return {
-          key,
-          value: this.model[key] || "n/a"
-        };
-      });
-    },
-    items() {
-      return this.entries.map(entry => {
-        const Description =
-          entry.il.length > this.descriptionLimit
-            ? entry.il.slice(0, this.descriptionLimit) + "..."
-            : entry.il;
-        return Object.assign({}, entry);
-      });
     },
     pointCount() {
       this.formValues.pointCount = this.formValues.waypts.length + 1;
       return this.formValues.waypts.length + 1;
     }
   },
-  components: {},
   methods: {
-    updatePassword() {},
     initMaps() {
       var _this = this;
 
       loadGoogleMapsApi().then(function(googleMaps) {
+        // document.getElementById('to').focus();
         _this.googleMaps = googleMaps;
         _this.vueMaps = new googleMaps.Map(document.getElementById("map"), {
           center: { lat: 39.01, lng: 30.97 },
@@ -337,20 +297,6 @@ export default {
         });
       });
     },
-    // checkPlaka(val) {
-    //   var regex, v;
-    //   v = val.replace(/\s+/g, "").toUpperCase();
-    //   regex = /^(0[1-9]|[1-7][0-9]|8[01])(([A-Z])(\d{4,5})|([A-Z]{2})(\d{3,4})|([A-Z]{3})(\d{2}))$/;
-    //   if (!v.match(regex)) {
-    //     this.$refs.plaka.focus();
-    //     this.snackbar.visible = true;
-    //     this.snackbar.text = "Lütfen geçerli plaka giriniz";
-    //     alert("selam");
-    //     return true;
-    //   }
-
-    //   return v.match(regex) != null;
-    // },
     arrayUp(oldIndex) {
       if (oldIndex > 0) {
         var newIndex = oldIndex - 1;
@@ -383,9 +329,9 @@ export default {
       return e.split(",", 2)[0] + "," + e.split(",", 2)[1];
     },
     setVehicleValue(type) {
+      debugger;
       var lorryValue = this.parameters.lorryValue;
       var truckValue = this.parameters.truckValue;
-      console.log(this.parameters.lorryValue);
       if (type === "KAMYON") {
         this.formValues.vehicleValue = lorryValue;
       } else this.formValues.vehicleValue = truckValue;
@@ -393,23 +339,31 @@ export default {
     postForm() {
       var _this = this;
       if (this.$refs.mapsForm.validate()) {
-        this.$store
-          .dispatch("postFormValues", this.formValues)
-          .then(response => {
-            _this.snackbars.text = "Form başarıyla gönderildi";
-            _this.snackbars.color = "success";
-            _this.snackbar = true;
-          })
-          .catch(function(error) {
-            // eslint-disable-line
-            // handle error
-          })
-          .finally(function() {
-            // always executed
-          });
+        if (this.formValues.endPoint.fiyat) {
+          this.$store
+            .dispatch("postFormValues", this.formValues)
+            .then(response => {
+              _this.snackbars.text = "Form başarıyla gönderildi";
+              _this.snackbars.color = "success";
+              _this.snackbar = true;
+            })
+            .catch(function(error) {
+              _this.snackbars.text = error;
+              _this.snackbars.color = "error";
+              _this.snackbar = true;
+            })
+            .finally(function() {
+              // always executed
+            });
+        } else {
+          _this.snackbars.text = "Sabit ücret olmadan formu gönderemem :(";
+          _this.snackbars.color = "error";
+          _this.snackbar = true;
+        }
       }
     },
     computeTotalDistance(result, j = 0) {
+      console.log(result);
       var totalDist = 0;
       var _this = this;
       if (_this.formValues.waypts.length == 0) {
@@ -495,7 +449,6 @@ export default {
     });
   },
   mounted() {
-
     Array.prototype.move = function(from1, to1) {
       this.splice(to1, 0, this.splice(from1, 1)[0]);
       return this;
@@ -509,12 +462,31 @@ export default {
         input1,
         _this.options
       );
+
       _this.autocomplete2 = new this.googleMaps.places.Autocomplete(
         input2,
         _this.options
       );
+
       _this.autocomplete2.addListener("place_changed", () => {
-        _this.formValues.destinationPoint = _this.autocomplete2.getPlace().formatted_address;
+        let placeInfo = _this.autocomplete2.getPlace();
+        const adminArea = placeInfo.address_components.filter(
+          adress => adress.types[0] == "administrative_area_level_1"
+        );
+        fetch(`${process.env.VUE_APP_FIREBASE_DATABASE_URL}/distance.json`)
+          .then(res => res.json())
+          .then(res => {
+            document.getElementById("submit").click();
+            const destination = res.filter(
+              dest => dest.il == adminArea[0].long_name
+            );
+            this.formValues.endPoint = destination[0];
+          });
+        _this.formValues.destinationPoint = placeInfo.formatted_address;
+        _this.wayptShow = true;
+        setTimeout(() => {
+          _this.$refs.location.focus();
+        }, 200);
       });
       _this.autocomplete1.addListener("place_changed", () => {
         let place1 = _this.autocomplete1.getPlace();
