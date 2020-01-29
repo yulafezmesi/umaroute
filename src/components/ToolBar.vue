@@ -96,7 +96,7 @@ export default {
       items: [
         { id: 1, title: "Sevkiyat", icon: "local_shipping", path: "/" },
         { id: 2, title: "Kayıtlar", icon: "dashboard", path: "/kayitlar" },
-        { id: 3, title: "Ayarlar", icon: "settings", path: "/ayarlar" }
+        { id: 3, title: "Ayarlar", icon: "settings", path: "/ayarlar" },
         // { title: "Çıkış", icon: "exit_to_app", path: "/cikis" }
       ],
       drawer: false

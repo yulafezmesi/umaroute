@@ -141,7 +141,7 @@
                 <p v-if="isDone">{{ deserved }}</p>
                 <div class="d-flex justify-content-around mt-3">
                   <v-btn id="submit" color="primary">Hesapla</v-btn>
-                  <v-btn color="success" :disabled="!isDone" @click="postForm">Form Gönder</v-btn>
+                  <v-btn color="success" :disabled="!isDone" @click="updateForm">Form Güncelle</v-btn>
                   <v-btn :disabled="!isDone" target="_blank" :href="formValues.mapUrl">
                     <v-icon left color="primary">streetview</v-icon>
                   </v-btn>
@@ -224,6 +224,9 @@ export default {
       }
     };
   },
+  activated() {
+    this.updatedFormValues();
+  },
   watch: {
     invoiceDate(val) {
       this.formValues.invoiceDate = moment(val)
@@ -252,6 +255,7 @@ export default {
       var f = +this.formValues.endPoint.fiyat;
       var l = +this.parameters.lorryValue;
       var fn = +this.parameters.floorNumber;
+      debugger;
       var y;
       if (this.pointCount == 1) v = 0;
       if (t < r) {
@@ -271,6 +275,54 @@ export default {
     }
   },
   methods: {
+    updatedFormValues() {
+      fetch(
+        `${process.env.VUE_APP_FIREBASE_DATABASE_URL}/umaroute/${this.$route.params.id}.json`
+      )
+        .then(res => res.json())
+        .then(res => {
+          if (res) {
+            this.$store.dispatch("getParameters").then(() => {
+              this.$store.dispatch("disabledElements");
+              this.parameters = this.$store.getters.parameterValues;
+              this.formValues.beginPoint = res.beginPoint;
+              this.formValues.destinationPoint = res.destinationPoint;
+              this.formValues.endPoint.il = res.endPoint.il;
+              if (res.waypts) {
+                this.formValues.waypts = res.waypts;
+              }
+              this.formValues.extraCharge = res.extraCharge;
+              this.formValues.invoiceDate = res.invoiceDate;
+              this.formValues.plate = res.plate;
+              this.formValues.shippingNumber = res.shippingNumber;
+              this.formValues.endPoint.km = res.endPoint.km;
+              this.formValues.vehicleValue = res.vehicleValue;
+              this.formValues.vehicleType = res.vehicleType;
+              this.formValues.endPoint.fiyat = res.endPoint.fiyat;
+              this.formValues.pointCount = res.pointCount;
+              this.wayptShow = true;
+              document.getElementById("submit").click();
+              this.isDone = true;
+            });
+          } else {
+            this.snackbars.text =
+              "Kayıt Bulunamadı, kayıtlar sayfasına yönlendiriyorsunuz..";
+            this.snackbars.color = "error";
+            this.snackbar = true;
+            setTimeout(() => {
+              this.$router.push("/kayitlar");
+            }, 1000);
+          }
+        })
+        .catch(err => {
+          this.snackbars.text = err;
+          this.snackbars.color = "error";
+          this.snackbar = true;
+          setTimeout(() => {
+            this.$router.push("/");
+          }, 1000);
+        });
+    },
     initMaps() {
       var _this = this;
 
@@ -328,19 +380,20 @@ export default {
       return e.split(",", 2)[0] + "," + e.split(",", 2)[1];
     },
     setVehicleValue(type) {
-      
+      debugger;
       var lorryValue = this.parameters.lorryValue;
       var truckValue = this.parameters.truckValue;
       if (type === "KAMYON") {
         this.formValues.vehicleValue = lorryValue;
       } else this.formValues.vehicleValue = truckValue;
     },
-    postForm() {
+    updateForm() {
       var _this = this;
       if (this.$refs.mapsForm.validate()) {
         if (this.formValues.endPoint.fiyat) {
+          this.formValues.id = this.$route.params.id;
           this.$store
-            .dispatch("postFormValues", this.formValues)
+            .dispatch("updateFormValues", this.formValues)
             .then(response => {
               _this.snackbars.text = "Form başarıyla gönderildi";
               _this.snackbars.color = "success";
@@ -362,6 +415,7 @@ export default {
       }
     },
     computeTotalDistance(result, j = 0) {
+      debugger;
       console.log(result);
       var totalDist = 0;
       var _this = this;
@@ -442,11 +496,9 @@ export default {
       }
     }
   },
-  activated() {
-    this.$store.dispatch("getParameters").then(() => {
-      this.$store.dispatch("disabledElements");
-      this.parameters = this.$store.getters.parameterValues;
-    });
+
+  created() {
+    this.updatedFormValues();
   },
   mounted() {
     Array.prototype.move = function(from1, to1) {
@@ -482,6 +534,7 @@ export default {
         //     adress => adress.types[0] == "administrative_area_level_1"
         //   );
         // }
+        debugger;
         fetch(`${process.env.VUE_APP_FIREBASE_DATABASE_URL}/distance.json`)
           .then(res => res.json())
           .then(res => {

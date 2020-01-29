@@ -63,8 +63,11 @@
             <td>{{ props.item.description }}</td>
             <td>{{ props.item.totalPrice }}</td>
             <td>{{ props.item.invoiceDate }}</td>
-            <td v-if="checkGuest" class="justify-center layout px-0">
+            <!-- <td v-if="checkGuest" class="justify-center layout px-0">
               <v-icon class="mr-2" @click="updateFormValues(props.item)">edit</v-icon>
+            </td>-->
+            <td v-if="checkGuest" class="justify-center layout px-0">
+              <v-icon class="mr-2" @click="updateFormValues(props.item.id)">edit</v-icon>
             </td>
             <!-- <td>{{ props.item.date }}</td> -->
 
@@ -102,7 +105,7 @@ export default {
         color: ""
       },
       formValues: [],
-      search: '',
+      search: "",
       headers: [
         { text: "Varış Noktası", value: "endPoint.il" },
         { text: "Noktalar", value: "waypts[0].location" },
@@ -137,9 +140,10 @@ export default {
   },
   methods: {
     updateFormValues(obj) {
-      eventBus.$emit("showFormModal", true);
-      eventBus.$emit("editedFormItem", obj);
-      
+      console.log(obj)
+      // eventBus.$emit("showFormModal", true);
+      // eventBus.$emit("editedFormItem", obj);
+      this.$router.push({ path: `/kayitlar/${obj}` });
     },
     deleteItem(id) {
       alert("deleted");

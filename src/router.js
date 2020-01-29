@@ -1,6 +1,7 @@
 import VueRouter from "vue-router"
 import Vue from 'vue'
 import Maps from '@/components/Maps'
+import EditRoute from '@/components/EditRoute'
 import Datatable from '@/components/DataTable'
 import Settings from '@/components/Settings'
 import EditSettings from '@/components/EditSettings'
@@ -10,17 +11,24 @@ import store from "./store"
 import AuthGuard from './auth-guard'
 Vue.use(VueRouter);
 export const router = new VueRouter({
-    routes: [
-        {
+    routes: [{
             path: '/',
             beforeEnter: AuthGuard,
             component: Maps,
         },
+
         {
             path: '/kayitlar',
             beforeEnter: AuthGuard,
             component: Datatable
         },
+
+        {
+            path: '/kayitlar/:id',
+            beforeEnter: AuthGuard,
+            component: EditRoute
+        },
+
         {
             path: '/giris',
             component: SignIn,
