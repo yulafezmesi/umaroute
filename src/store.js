@@ -124,7 +124,6 @@ const store = new Vuex.Store({
                             plaka: data[key].id
                         });
                     }
-
                     commit('setLoadedDistances', distanceValues)
                 })
         },
@@ -158,6 +157,13 @@ const store = new Vuex.Store({
                 }
 
             }
+        },
+        deteDistancesData({ dispatch }, payload) {
+            return axios
+                .delete(`/umaroute/${payload}.json`)
+                .then(function(response) {
+
+                })
         },
         updateDistancesData({ commit }, payload) {
             const updateObj = {};
@@ -197,10 +203,7 @@ const store = new Vuex.Store({
             delete updateObj.id;
             return axios
                 .patch(`/umaroute/${id}.json`, updateObj)
-                .then(function(response) {
-
-                    console.log('update oldu')
-                })
+                .then(function(response) {})
         },
         getUserProfiles({ commit }, payload) {
             return axios
@@ -222,7 +225,6 @@ const store = new Vuex.Store({
             return state.loadedDistances;
         },
         formValues(state) {
-
             return state.loadedFormValues.reverse();
         },
         userValues(state) {

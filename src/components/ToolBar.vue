@@ -104,6 +104,7 @@ export default {
   },
   computed: {
     isAuth() {
+      
       return this.$store.getters.isAuthenticated;
     }
   },
@@ -125,7 +126,6 @@ export default {
           }, 2000);
         })
         .catch(err => {
-          console.log(err);
         });
     },
     logOut() {

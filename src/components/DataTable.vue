@@ -69,6 +69,9 @@
             <td v-if="checkGuest" class="justify-center layout px-0">
               <v-icon class="mr-2" @click="updateFormValues(props.item.id)">edit</v-icon>
             </td>
+            <td v-if="checkGuest" class="justify-center layout px-0">
+              <v-icon class="mr-2" @click="deteDistancesData(props.item.id)">delete</v-icon>
+            </td>
             <!-- <td>{{ props.item.date }}</td> -->
 
             <td>
@@ -94,6 +97,7 @@
   </div>
 </template>
 <script>
+import { mapGetters } from "vuex";
 import { eventBus } from "../main";
 import EditFormValues from "@/components/EditFormValues";
 export default {
@@ -104,7 +108,6 @@ export default {
         text: "",
         color: ""
       },
-      formValues: [],
       search: "",
       headers: [
         { text: "Varış Noktası", value: "endPoint.il" },
@@ -123,9 +126,7 @@ export default {
   },
   watch: {},
   activated() {
-    this.$store.dispatch("loadMapValues").then(() => {
-      this.formValues = this.$store.getters.formValues;
-    });
+    this.$store.dispatch("loadMapValues");
 
     eventBus.$on("snackBar", snackBar => {
       this.snackbars.text = snackBar.text;
@@ -134,19 +135,29 @@ export default {
     });
   },
   computed: {
+    ...mapGetters(["formValues"]),
     checkGuest() {
       return this.$store.getters.isGuest;
     }
   },
   methods: {
-    updateFormValues(obj) {
-      console.log(obj)
-      // eventBus.$emit("showFormModal", true);
-      // eventBus.$emit("editedFormItem", obj);
-      this.$router.push({ path: `/kayitlar/${obj}` });
+    deteDistancesData(id) {
+      this.$store
+        .dispatch("deteDistancesData", id)
+        .then(() => {
+          this.$store.dispatch("loadMapValues");
+          this.snackbars.text = "Kayıt Başarıyla Silindi";
+          this.snackbars.color = "green";
+          this.snackbar = true;
+        })
+        .catch(err => {
+          this.snackbars.text = "Hata oluştu";
+          this.snackbars.color = "red";
+          this.snackbar = true;
+        });
     },
-    deleteItem(id) {
-      alert("deleted");
+    updateFormValues(obj) {
+      this.$router.push({ path: `/kayitlar/${obj}` });
     }
   },
   components: {

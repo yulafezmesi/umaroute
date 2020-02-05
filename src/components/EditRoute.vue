@@ -255,7 +255,6 @@ export default {
       var f = +this.formValues.endPoint.fiyat;
       var l = +this.parameters.lorryValue;
       var fn = +this.parameters.floorNumber;
-      debugger;
       var y;
       if (this.pointCount == 1) v = 0;
       if (t < r) {
@@ -380,7 +379,6 @@ export default {
       return e.split(",", 2)[0] + "," + e.split(",", 2)[1];
     },
     setVehicleValue(type) {
-      debugger;
       var lorryValue = this.parameters.lorryValue;
       var truckValue = this.parameters.truckValue;
       if (type === "KAMYON") {
@@ -415,8 +413,6 @@ export default {
       }
     },
     computeTotalDistance(result, j = 0) {
-      debugger;
-      console.log(result);
       var totalDist = 0;
       var _this = this;
       if (_this.formValues.waypts.length == 0) {
@@ -426,7 +422,6 @@ export default {
       for (let i = 0; i < myroute.legs.length; i++) {
         totalDist += myroute.legs[i].distance.value;
       }
-      debugger;
       this.formValues.totalDistance = (totalDist / 1000).toFixed(1);
     },
     calculateAndDisplayRoute(directionsService, directionsDisplay, googleMaps) {
@@ -534,7 +529,6 @@ export default {
         //     adress => adress.types[0] == "administrative_area_level_1"
         //   );
         // }
-        debugger;
         fetch(`${process.env.VUE_APP_FIREBASE_DATABASE_URL}/distance.json`)
           .then(res => res.json())
           .then(res => {

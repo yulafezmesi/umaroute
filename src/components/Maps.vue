@@ -155,6 +155,17 @@
         {{ snackbars.text }}
         <v-icon @click="snackbar = false" flat color="white">close</v-icon>
       </v-snackbar>
+      <template></template>
+      <v-dialog v-model="dialog" persistent max-width="290">
+        <v-card>
+          <v-card-title class="headline">Ulaşım Tipi</v-card-title>
+          <v-radio-group v-model="istanbulType" row>
+            <v-radio label="Kamyon" value="İstanbul-Kamyon"></v-radio>
+            <v-radio label="Kırkayak" value="İstanbul-Kırkayak"></v-radio>
+          </v-radio-group>
+          <v-btn small @click="dialog=false" color="primary">Tamam</v-btn>
+        </v-card>
+      </v-dialog>
     </v-container>
   </div>
 </template>
@@ -166,6 +177,9 @@ export default {
   directives: { focus },
   data() {
     return {
+      destinationValues: [],
+      istanbulType: null,
+      dialog: false,
       wayptShow: false,
       invoiceDate: "",
       dateMenu: false,
@@ -225,6 +239,10 @@ export default {
     };
   },
   watch: {
+    istanbulType(val) {
+      const destination = this.destinationValues.filter(dest => dest.il == val);
+      this.formValues.endPoint = destination[0];
+    },
     invoiceDate(val) {
       this.formValues.invoiceDate = moment(val)
         .lang("tr")
@@ -328,7 +346,6 @@ export default {
       return e.split(",", 2)[0] + "," + e.split(",", 2)[1];
     },
     setVehicleValue(type) {
-      
       var lorryValue = this.parameters.lorryValue;
       var truckValue = this.parameters.truckValue;
       if (type === "KAMYON") {
@@ -362,7 +379,6 @@ export default {
       }
     },
     computeTotalDistance(result, j = 0) {
-      console.log(result);
       var totalDist = 0;
       var _this = this;
       if (_this.formValues.waypts.length == 0) {
@@ -372,7 +388,6 @@ export default {
       for (let i = 0; i < myroute.legs.length; i++) {
         totalDist += myroute.legs[i].distance.value;
       }
-      debugger;
       this.formValues.totalDistance = (totalDist / 1000).toFixed(1);
     },
     calculateAndDisplayRoute(directionsService, directionsDisplay, googleMaps) {
@@ -486,10 +501,15 @@ export default {
           .then(res => res.json())
           .then(res => {
             document.getElementById("submit").click();
+            this.destinationValues = res;
             const destination = res.filter(
               dest => dest.il == adminArea[0].long_name
             );
-            this.formValues.endPoint = destination[0];
+            if (adminArea[0].long_name == "İstanbul") {
+              this.dialog = true;
+            } else {
+              this.formValues.endPoint = destination[0];
+            }
           });
         _this.formValues.destinationPoint = placeInfo.formatted_address;
         _this.wayptShow = true;

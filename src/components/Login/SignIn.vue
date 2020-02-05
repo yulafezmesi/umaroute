@@ -98,7 +98,6 @@ export default {
   },
   methods: {
     onSubmit() {
-      debugger;
       this.$store
         .dispatch("login", { ...this.user })
         .then(response => {
