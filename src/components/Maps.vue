@@ -162,6 +162,7 @@
           <v-radio-group v-model="istanbulType" row>
             <v-radio label="Kamyon" value="İstanbul-Kamyon"></v-radio>
             <v-radio label="Kırkayak" value="İstanbul-Kırkayak"></v-radio>
+            <v-radio selected label="Tır" value="İstanbul"></v-radio>
           </v-radio-group>
           <v-btn small @click="dialog=false" color="primary">Tamam</v-btn>
         </v-card>
